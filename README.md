@@ -47,6 +47,16 @@ v) Go to settings  and then Resources/WSL integration and enable Ubuntu:
 <p align='center'>  <img width="48%" src="https://github.com/user-attachments/assets/5a4f9192-5b2d-41c2-8110-ac304b4dadfd" />
   </p>
 
+vi) Apply and restart.
 
+vii)Open up your WSL cmd and write this command:
+
+    >docker --version
+
+and show you this ,
+
+    -Docker version 29.1.2, build 890dcca  
+
+docker login -u username
 
     
