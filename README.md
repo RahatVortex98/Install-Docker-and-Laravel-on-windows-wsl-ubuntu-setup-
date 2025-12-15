@@ -33,12 +33,19 @@ Next Step is to install Docker:
 Link: https://www.docker.com/ (must create an account, and Docker will send you an email verification)
 
 i) And then download the Docker app for desktop!
+ii) Again, restart your machine!
+iii) Open up your Docker app! (accept those terms)
+iv) Log in with your credentials.
+
+And then you see something like this->
+
+<p align='center'><img width="48%"  src="https://github.com/user-attachments/assets/7595ce6f-278a-40b6-afcc-c34f94f76d74" /></p>
+
+v) Go to settings  and then Resources/WSL integration and enable Ubuntu:
 
 
-
-
-
-
+<p align='center'>  <img width="48%" src="https://github.com/user-attachments/assets/5a4f9192-5b2d-41c2-8110-ac304b4dadfd" />
+  </p>
 
 
 
