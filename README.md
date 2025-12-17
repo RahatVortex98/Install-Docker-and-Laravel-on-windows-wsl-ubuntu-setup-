@@ -152,6 +152,133 @@ Note: Make sure that your sail using-> ./vendor/bin/sail up -d
 
 
 
+###1️⃣PHP Dockerfile (Laravel 12):
+📄 docker/php/Dockerfile
+
+      FROM php:8.3-fpm
+
+      # Install system dependencies
+      RUN apt-get update && apt-get install -y \
+          git \
+          curl \
+          zip \
+          unzip \
+          libpng-dev \
+          libonig-dev \
+          libxml2-dev \
+          libzip-dev \
+          && docker-php-ext-install pdo_mysql mbstring zip exif pcntl
+      
+      # Install Composer
+      COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+      
+      # Set working directory
+      WORKDIR /var/www
+      
+      # Copy project files
+      COPY . .
+      
+      # Install Laravel dependencies
+      RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+      
+      # Permissions
+      RUN chown -R www-data:www-data /var/www \
+          && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+      
+      EXPOSE 9000
+      CMD ["php-fpm"]
+
+###2️⃣Nginx config
+📄 docker/nginx/default.conf
+
+      server {
+    listen 80;
+    index index.php index.html;
+    root /var/www/public;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass app:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+    }
+
+###3️⃣ Docker Compose file
+📄 docker-compose.yml
+
+      version: "3.9"
+
+      services:
+        app:
+          build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+          container_name: laravel_app
+          volumes:
+            - .:/var/www
+          depends_on:
+            - db
+      
+        web:
+          image: nginx:alpine
+          container_name: laravel_nginx
+          ports:
+            - "8000:80"
+          volumes:
+            - .:/var/www
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+          depends_on:
+            - app
+      
+        db:
+          image: mysql:8.0
+          container_name: laravel_db
+          restart: always
+          environment:
+            MYSQL_DATABASE: laravel
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: secret
+          ports:
+            - "3306:3306"
+          volumes:
+            - dbdata:/var/lib/mysql
+      
+      volumes:
+        dbdata:
+
+###4️⃣ Laravel .env database settings
+
+      DB_CONNECTION=mysql
+      DB_HOST=db
+      DB_PORT=3306
+      DB_DATABASE=laravel
+      DB_USERNAME=laravel
+      DB_PASSWORD=secret
+      
+⚠️ Important:
+DB_HOST=db → must match the service name in docker-compose.yml
+
+
+###5️⃣ Run the project 
+
+      docker compose up -d --build
+Then:
+
+      http://localhost:8000
+###6️⃣ Run Laravel commands inside container
+
+      docker compose exec app php artisan migrate
+      docker compose exec app php artisan key:generate
 
 
 
